@@ -10,7 +10,10 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
-    <script src="https://kit.fontawesome.com/a20a395ade.js" crossorigin="anonymous"></script>
+    <!-- <script
+      src="https://kit.fontawesome.com/a20a395ade.js"
+      crossorigin="anonymous"
+    ></script> -->
     <link rel="stylesheet" href="style.css" />
     <title>Document</title>
   </head>
@@ -339,6 +342,7 @@
   </body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script>
     let lst;
     let editIndex = null;
@@ -352,17 +356,18 @@
       $("#title").focus();
     });
 
-    $(".btn-save").click(() => {
-      if(editIndex != null){
+    $(".btn-save").click((e) => {
+      e.preventDefault();
+      if (editIndex != null) {
         UpdateData();
-      }else{
+      } else {
         SaveData();
-      }   
+      }
       ClearInput();
       LoadData();
     });
 
-    function GetData(){
+    function GetData() {
       let lst = localStorage.getItem("blogs");
       lst = lst ? JSON.parse(lst) : [];
       return lst;
@@ -378,8 +383,8 @@
               <td>${element.author}</td>
               <td>${element.content}</td>
               <td>
-                <i class="fa-solid fa-pen ms-2" onClick="Edit(${index})" style="color: #74C0FC;"></i>
-                <i class="fa-solid fa-trash ms-3" onClick="Delete(${index})" style="color: #fb1818;"></i>
+                <button class="btn btn-warning" onClick="Edit(${index})">Edit</button>
+                <button class="btn btn-danger" onClick="Delete(${index})">Delete</button>
               </td>
             </tr>
           `);
@@ -392,7 +397,7 @@
       $("#content").val("");
     }
 
-    function SaveData(){
+    function SaveData() {
       let title = $("#title").val();
       let author = $("#author").val();
       let content = $("#content").val();
@@ -404,9 +409,10 @@
       };
       lst.push(blog);
       localStorage.setItem("blogs", JSON.stringify(lst));
+      Success("Successfully Saved!");
     }
 
-    function UpdateData(){
+    function UpdateData() {
       let title = $("#title").val();
       let author = $("#author").val();
       let content = $("#content").val();
@@ -416,9 +422,10 @@
       lst[editIndex].content = content;
       localStorage.setItem("blogs", JSON.stringify(lst));
       editIndex = null;
+      Success("Successfully Updated!");
     }
 
-    function Edit(index){
+    function Edit(index) {
       editIndex = index;
       let blog = lst[index];
       $("#title").val(blog.title);
@@ -427,13 +434,47 @@
     }
 
     function Delete(index) {
-      let result = confirm("Are you sure you want to delete this blog?");
-      if (!result) return;
-      lst.splice(index, 1);
-      localStorage.setItem("blogs", JSON.stringify(lst));
-      LoadData();
+      let result = confirmMessage("Are you sure you want to delete this blog?", (result) => {
+        if (!result) return;
+        lst.splice(index, 1);
+        localStorage.setItem("blogs", JSON.stringify(lst));
+        LoadData();
+      });
     }
 
+    function Success(message) {
+      Swal.fire({
+        title: message,
+        icon: "success",
+      });
+    }
+
+    function Error(message) {
+      Swal.fire({
+        title: message,
+        icon: "error",
+      });
+    }
+
+    function confirmMessage(message, callback) {
+      Swal.fire({
+        title: message,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          callback(true);
+          // Swal.fire({
+          //   title: "Deleted!",
+          //   text: "Your file has been deleted.",
+          //   icon: "success",
+          // });
+        }
+      });
+    }
   </script>
   <script src="app.js"></script>
 </html>
