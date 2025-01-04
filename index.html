@@ -10,6 +10,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <script src="https://kit.fontawesome.com/a20a395ade.js" crossorigin="anonymous"></script>
     <link rel="stylesheet" href="style.css" />
     <title>Document</title>
   </head>
@@ -308,7 +309,7 @@
                 <label for="content" class="form-label">Content</label>
                 <input type="text" class="form-control" id="content" />
               </div>
-              <button type="submit" class="btn btn-secondary btn-cancel">
+              <button type="button" class="btn btn-secondary btn-cancel">
                 Cancel
               </button>
               <button type="button" class="btn btn-success btn-save">
@@ -319,14 +320,15 @@
               <table
                 class="table table-responsive table-striped table-hover mt-5 me-5 border"
               >
-              <thead>
-                <tr>
-                  <th>Title</th>
-                  <th>Author</th>
-                  <th>Content</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Content</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
                 <tbody id="blogData"></tbody>
               </table>
             </div>
@@ -338,20 +340,59 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
   <script>
-    
-    let lst = localStorage.getItem("blog");
-    if (lst == null) {
-      lst = [];
-    }
-    LoadData();
+    let lst;
+    let editIndex = null;
+    $(document).ready(() => {
+      lst = GetData();
+      LoadData();
+    });
 
     $(".btn-cancel").click(function () {
-      $("#title").val("");
-      $("#author").val("");
-      $("#content").val("");
+      ClearInput();
+      $("#title").focus();
     });
 
     $(".btn-save").click(() => {
+      if(editIndex != null){
+        UpdateData();
+      }else{
+        SaveData();
+      }   
+      ClearInput();
+      LoadData();
+    });
+
+    function GetData(){
+      let lst = localStorage.getItem("blogs");
+      lst = lst ? JSON.parse(lst) : [];
+      return lst;
+    }
+
+    function LoadData() {
+      $("#blogData").html("");
+      lst.forEach((element, index) => {
+        $("#blogData").append(`
+            <tr>
+              <td>${index + 1}.</td>
+              <td>${element.title}</td>
+              <td>${element.author}</td>
+              <td>${element.content}</td>
+              <td>
+                <i class="fa-solid fa-pen ms-2" onClick="Edit(${index})" style="color: #74C0FC;"></i>
+                <i class="fa-solid fa-trash ms-3" onClick="Delete(${index})" style="color: #fb1818;"></i>
+              </td>
+            </tr>
+          `);
+      });
+    }
+
+    function ClearInput() {
+      $("#title").val("");
+      $("#author").val("");
+      $("#content").val("");
+    }
+
+    function SaveData(){
       let title = $("#title").val();
       let author = $("#author").val();
       let content = $("#content").val();
@@ -361,27 +402,38 @@
         author: author,
         content: content,
       };
-      console.log(lst);
       lst.push(blog);
-      localStorage.setItem("blog", JSON.stringify(lst));
-      LoadData();
-    });
-
-    function LoadData() {
-      let blog = JSON.parse(lst);
-      blog.forEach((element) => {
-        $("#blogData").append(`
-        <tr>
-          <td>${element.title}</td>
-          <td>${element.author}</td>
-          <td>${element.content}</td>
-          <td>
-            <button class="btn btn-danger">Delete</button>
-          </td>
-        </tr>
-        `);
-      });
+      localStorage.setItem("blogs", JSON.stringify(lst));
     }
+
+    function UpdateData(){
+      let title = $("#title").val();
+      let author = $("#author").val();
+      let content = $("#content").val();
+
+      lst[editIndex].title = title;
+      lst[editIndex].author = author;
+      lst[editIndex].content = content;
+      localStorage.setItem("blogs", JSON.stringify(lst));
+      editIndex = null;
+    }
+
+    function Edit(index){
+      editIndex = index;
+      let blog = lst[index];
+      $("#title").val(blog.title);
+      $("#author").val(blog.author);
+      $("#content").val(blog.content);
+    }
+
+    function Delete(index) {
+      let result = confirm("Are you sure you want to delete this blog?");
+      if (!result) return;
+      lst.splice(index, 1);
+      localStorage.setItem("blogs", JSON.stringify(lst));
+      LoadData();
+    }
+
   </script>
   <script src="app.js"></script>
 </html>
