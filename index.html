@@ -10,6 +10,7 @@
       crossorigin="anonymous"
       referrerpolicy="no-referrer"
     />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notiflix@3.2.8/src/notiflix.min.css">
     <!-- <script
       src="https://kit.fontawesome.com/a20a395ade.js"
       crossorigin="anonymous"
@@ -294,7 +295,7 @@
           </div>
         </div>
 
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <main id="mainContent" class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
           <div class="row">
             <div
               class="col-4 mx-auto mt-5 border border-2 px-5 pt-3 pb-5 rounded-3"
@@ -343,138 +344,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
-    let lst;
-    let editIndex = null;
-    $(document).ready(() => {
-      lst = GetData();
-      LoadData();
-    });
-
-    $(".btn-cancel").click(function () {
-      ClearInput();
-      $("#title").focus();
-    });
-
-    $(".btn-save").click((e) => {
-      e.preventDefault();
-      if (editIndex != null) {
-        UpdateData();
-      } else {
-        SaveData();
-      }
-      ClearInput();
-      LoadData();
-    });
-
-    function GetData() {
-      let lst = localStorage.getItem("blogs");
-      lst = lst ? JSON.parse(lst) : [];
-      return lst;
-    }
-
-    function LoadData() {
-      $("#blogData").html("");
-      lst.forEach((element, index) => {
-        $("#blogData").append(`
-            <tr>
-              <td>${index + 1}.</td>
-              <td>${element.title}</td>
-              <td>${element.author}</td>
-              <td>${element.content}</td>
-              <td>
-                <button class="btn btn-warning" onClick="Edit(${index})">Edit</button>
-                <button class="btn btn-danger" onClick="Delete(${index})">Delete</button>
-              </td>
-            </tr>
-          `);
-      });
-    }
-
-    function ClearInput() {
-      $("#title").val("");
-      $("#author").val("");
-      $("#content").val("");
-    }
-
-    function SaveData() {
-      let title = $("#title").val();
-      let author = $("#author").val();
-      let content = $("#content").val();
-
-      let blog = {
-        title: title,
-        author: author,
-        content: content,
-      };
-      lst.push(blog);
-      localStorage.setItem("blogs", JSON.stringify(lst));
-      Success("Successfully Saved!");
-    }
-
-    function UpdateData() {
-      let title = $("#title").val();
-      let author = $("#author").val();
-      let content = $("#content").val();
-
-      lst[editIndex].title = title;
-      lst[editIndex].author = author;
-      lst[editIndex].content = content;
-      localStorage.setItem("blogs", JSON.stringify(lst));
-      editIndex = null;
-      Success("Successfully Updated!");
-    }
-
-    function Edit(index) {
-      editIndex = index;
-      let blog = lst[index];
-      $("#title").val(blog.title);
-      $("#author").val(blog.author);
-      $("#content").val(blog.content);
-    }
-
-    function Delete(index) {
-      let result = confirmMessage("Are you sure you want to delete this blog?", (result) => {
-        if (!result) return;
-        lst.splice(index, 1);
-        localStorage.setItem("blogs", JSON.stringify(lst));
-        LoadData();
-      });
-    }
-
-    function Success(message) {
-      Swal.fire({
-        title: message,
-        icon: "success",
-      });
-    }
-
-    function Error(message) {
-      Swal.fire({
-        title: message,
-        icon: "error",
-      });
-    }
-
-    function confirmMessage(message, callback) {
-      Swal.fire({
-        title: message,
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#3085d6",
-        cancelButtonColor: "#d33",
-        confirmButtonText: "Yes, delete it!",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          callback(true);
-          // Swal.fire({
-          //   title: "Deleted!",
-          //   text: "Your file has been deleted.",
-          //   icon: "success",
-          // });
-        }
-      });
-    }
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/notiflix@3.2.8/dist/notiflix-aio-3.2.8.min.js"></script>
   <script src="app.js"></script>
 </html>
